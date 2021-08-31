@@ -105,7 +105,7 @@ using System.Text.Json.Serialization;
         }
         #pragma warning restore 1998
 #nullable restore
-#line 43 "C:\Users\bmcma\Documents\CollegeWork\WinterSemester\EAD\Repeat\BlazorApp\Pages\Index.razor"
+#line 47 "C:\Users\bmcma\Documents\CollegeWork\WinterSemester\EAD\Repeat\BlazorApp\Pages\Index.razor"
        
     private IEnumerable<University> unis = Array.Empty<University>();
     private bool getUniErr;
