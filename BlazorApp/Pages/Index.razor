@@ -18,19 +18,23 @@ th, tr {
 }
 </style>
 
+<input type="text" placeholder="Search.."  @bind-value="SearchText"
+           @bind-value:event="oninput" />
+
+
 @if (getUniErr)
 {
     <p>Issue with obtaining University listings</p>
 }
 else
 {
-   @foreach (var university in unis)
+   @foreach (var university in FilteredUnis)
    {   
         <div class="uniData">
           <table>
-            <tr>@university.Country</tr>
-            <tr>@university.Code</tr>
-            <tr>@university.Name</tr>
+            <tr><h4>University Name: </h4> @university.Name</tr>
+            <tr><h4>Country: </h4> @university.Country</tr>
+            <tr><h4>Country Code: </h4> @university.Code</tr>
           </table>
         </div>   
    }
@@ -40,13 +44,15 @@ else
     private IEnumerable<University> unis = Array.Empty<University>();
     private bool getUniErr;
     private bool render;
-
+    public String filter = "Ireland";
+    public String SearchText = "";
     protected override bool ShouldRender() => render;
+    private String apiUrl = "http://universities.hipolabs.com/search?country=";
 
     protected override async Task OnInitializedAsync()
     {
         var request = new HttpRequestMessage(HttpMethod.Get,
-            "http://universities.hipolabs.com/search?country=Ireland");
+            apiUrl + filter);
         request.Headers.Add("Accept", "application/vnd.github.v3+json");
         request.Headers.Add("User-Agent", "HttpClientFactory-Sample");
 
@@ -66,6 +72,8 @@ else
         }
             render = true;
     }
+    List<University> FilteredUnis => unis.Where(
+            university => university.Name.ToLower().Contains(SearchText.ToLower())).ToList();
 
     public class University
     {

@@ -105,18 +105,20 @@ using System.Text.Json.Serialization;
         }
         #pragma warning restore 1998
 #nullable restore
-#line 34 "C:\Users\bmcma\Documents\CollegeWork\WinterSemester\EAD\Repeat\BlazorApp\Pages\Index.razor"
+#line 43 "C:\Users\bmcma\Documents\CollegeWork\WinterSemester\EAD\Repeat\BlazorApp\Pages\Index.razor"
        
     private IEnumerable<University> unis = Array.Empty<University>();
     private bool getUniErr;
     private bool render;
-
+    public String filter = "Ireland";
+    public String SearchText = "";
     protected override bool ShouldRender() => render;
+    private String apiUrl = "http://universities.hipolabs.com/search?country=";
 
     protected override async Task OnInitializedAsync()
     {
         var request = new HttpRequestMessage(HttpMethod.Get,
-            "http://universities.hipolabs.com/search?country=Ireland");
+            apiUrl + filter);
         request.Headers.Add("Accept", "application/vnd.github.v3+json");
         request.Headers.Add("User-Agent", "HttpClientFactory-Sample");
 
@@ -136,6 +138,8 @@ using System.Text.Json.Serialization;
         }
             render = true;
     }
+    List<University> FilteredUnis => unis.Where(
+            university => university.Name.ToLower().Contains(SearchText.ToLower())).ToList();
 
     public class University
     {
