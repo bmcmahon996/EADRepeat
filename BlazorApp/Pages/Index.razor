@@ -1,0 +1,90 @@
+@page "/"
+
+@using System.Text.Json
+@using System.Text.Json.Serialization;
+@inject IHttpClientFactory ClientFactory
+
+<style>
+table, th, tr {
+  border: 1px solid black;
+  width: 500px;
+}
+
+th, tr {
+  padding: 2em;
+}
+.uniData{
+  padding: 1em;
+}
+</style>
+
+@if (getUniErr)
+{
+    <p>Issue with obtaining University listings</p>
+}
+else
+{
+   @foreach (var university in unis)
+   {   
+        <div class="uniData">
+          <table>
+            <tr>@university.Country</tr>
+            <tr>@university.Code</tr>
+            <tr>@university.Name</tr>
+          </table>
+        </div>   
+   }
+}
+
+@code {
+    private IEnumerable<University> unis = Array.Empty<University>();
+    private bool getUniErr;
+    private bool render;
+
+    protected override bool ShouldRender() => render;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get,
+            "http://universities.hipolabs.com/search?country=Ireland");
+        request.Headers.Add("Accept", "application/vnd.github.v3+json");
+        request.Headers.Add("User-Agent", "HttpClientFactory-Sample");
+
+        var client = ClientFactory.CreateClient();
+
+        var response = await client.SendAsync(request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            using var responseStream = await response.Content.ReadAsStreamAsync();
+            unis = await JsonSerializer.DeserializeAsync
+                <IEnumerable<University>>(responseStream);
+        }
+        else
+        {
+            getUniErr = true;
+        }
+            render = true;
+    }
+
+    public class University
+    {
+        [JsonPropertyName("country")]
+        public string Country { get; set; }
+
+        [JsonPropertyName("state-province")]
+        public string State { get; set; }
+                    
+        [JsonPropertyName("web_pages")]
+        public string[] Web { get; set; }
+                    
+        [JsonPropertyName("alpha_two_code")]
+        public string Code { get; set; }
+                    
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+                    
+        [JsonPropertyName("domains")]
+        public string[] Domain { get; set; }
+    }
+}
